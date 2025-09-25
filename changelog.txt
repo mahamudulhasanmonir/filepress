@@ -1,0 +1,10 @@
+* Version: 1.0.0
+=> Structural Build
+-------------------------------------------------
+Version: 1.1.0
+=> Added upload functionality
+-------------------------------------------------
+Version: 1.2.0
+=> Fixed Bugs
+=> Fixed upload error
+-------------------------------------------------

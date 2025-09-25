@@ -15,16 +15,51 @@
     margin-bottom: 15px;
 }
 
-.filepress-btn {
-    display: inline-block;
-    background: #2271b1;
-    color: #fff;
-    padding: 8px 14px;
-    border-radius: 4px;
-    text-decoration: none;
-    transition: background 0.2s ease-in-out;
+/* FilePress Styles */
+.filepress-container {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
-.filepress-btn:hover {
-    background: #135e96;
+.filepress-btn {
+    display: inline-block;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background: #2271b1;
+    color: #fff;
+    transition: background 0.2s ease-in-out;
+    margin: 2px;
+}
+
+.filepress-btn:hover { background: #135e96; }
+.filepress-btn.small { padding: 4px 8px; font-size: 12px; }
+.filepress-btn.danger { background: #d63638; }
+.filepress-btn.danger:hover { background: #a1282a; }
+
+.filepress-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.filepress-table th,
+.filepress-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+.filepress-table th { background: #f8f9fa; }
+
+.filepress-thumb {
+    width: 60px;
+    height: auto;
+    border-radius: 4px;
+}
+.inline-form {
+    display: inline-block;
 }

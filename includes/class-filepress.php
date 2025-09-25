@@ -30,10 +30,13 @@ class FilePress {
     }
 
     public function __construct() {
-    add_action( 'admin_post_filepress_upload', array( $this, 'handle_file_upload' ) );
-}
+        add_action( 'admin_post_filepress_upload', array( $this, 'handle_file_upload' ) );
+        add_action( 'admin_post_filepress_delete', array( $this, 'handle_file_delete' ) );
+        add_action( 'admin_post_filepress_rename', array( $this, 'handle_file_rename' ) );
+    }
 
-    public function handle_file_upload() {
+
+        public function handle_file_upload() {
         if ( ! isset( $_POST['filepress_nonce'] ) || ! wp_verify_nonce( $_POST['filepress_nonce'], 'filepress_upload' ) ) {
             wp_die( 'Security check failed.' );
         }
@@ -54,13 +57,57 @@ class FilePress {
 
             $target_file = $filepress_dir . basename( $uploaded_file['name'] );
 
+            // Move the uploaded file
             if ( move_uploaded_file( $uploaded_file['tmp_name'], $target_file ) ) {
                 wp_redirect( admin_url( 'admin.php?page=filepress&uploaded=1' ) );
                 exit;
             } else {
                 wp_die( 'File upload failed.' );
             }
+        } else {
+            wp_die( 'No file selected.' );
         }
+    }
+
+
+    public function handle_file_delete() {
+        if ( ! isset( $_POST['filepress_nonce'] ) || ! wp_verify_nonce( $_POST['filepress_nonce'], 'filepress_action' ) ) {
+            wp_die( 'Security check failed.' );
+        }
+
+        $upload_dir = wp_upload_dir();
+        $filepress_dir = $upload_dir['basedir'] . '/filepress/';
+        $file_name = sanitize_file_name( $_POST['file_name'] );
+        $file_path = $filepress_dir . $file_name;
+
+        if ( file_exists( $file_path ) ) {
+            unlink( $file_path );
+        }
+
+        wp_redirect( admin_url( 'admin.php?page=filepress&deleted=1' ) );
+        exit;
+    }
+
+    public function handle_file_rename() {
+        if ( ! isset( $_POST['filepress_nonce'] ) || ! wp_verify_nonce( $_POST['filepress_nonce'], 'filepress_action' ) ) {
+            wp_die( 'Security check failed.' );
+        }
+
+        $upload_dir = wp_upload_dir();
+        $filepress_dir = $upload_dir['basedir'] . '/filepress/';
+
+        $old_name = sanitize_file_name( $_POST['old_name'] );
+        $new_name = sanitize_file_name( $_POST['new_name'] );
+
+        $old_path = $filepress_dir . $old_name;
+        $new_path = $filepress_dir . $new_name;
+
+        if ( file_exists( $old_path ) && ! file_exists( $new_path ) ) {
+            rename( $old_path, $new_path );
+        }
+
+        wp_redirect( admin_url( 'admin.php?page=filepress&renamed=1' ) );
+        exit;
     }
 
     /**
@@ -91,42 +138,87 @@ class FilePress {
      * Render the admin page content.
      */
     public function render_admin_page() {
-        ?>
-        <div class="wrap">
-            <h1><?php esc_html_e( 'FilePress – File Manager', 'filepress' ); ?></h1>
-            <p><?php esc_html_e( 'Upload, organize, and manage your files right from the WordPress dashboard.', 'filepress' ); ?></p>
+        $upload_dir = wp_upload_dir();
+        $filepress_dir = $upload_dir['basedir'] . '/filepress/';
+        $filepress_url = $upload_dir['baseurl'] . '/filepress/';
 
-            <!-- File Upload Form -->
-    <form id="filepress-upload-form" method="post" enctype="multipart/form-data" action="<?php echo esc_url( admin_url('admin-post.php') ); ?>">
-        <input type="hidden" name="action" value="filepress_upload">
-        <?php wp_nonce_field( 'filepress_upload', 'filepress_nonce' ); ?>
-        <input type="file" name="filepress_file" required>
-        <button type="submit" class="filepress-btn"><?php esc_html_e( 'Upload File', 'filepress' ); ?></button>
-    </form>
+        if ( ! file_exists( $filepress_dir ) ) {
+            wp_mkdir_p( $filepress_dir );
+        }
+        ?>
+        <div class="wrap filepress-container">
+            <h1>📂 FilePress – File Manager</h1>
+            <p>Upload, manage, and organize your files directly from WordPress.</p>
+
+            <!-- Upload Form -->
+            <form id="filepress-upload-form" method="post" enctype="multipart/form-data" action="<?php echo esc_url( admin_url('admin-post.php') ); ?>">
+                <input type="hidden" name="action" value="filepress_upload">
+                <?php wp_nonce_field( 'filepress_upload', 'filepress_nonce' ); ?>
+                <input type="file" name="filepress_file" required>
+                <button type="submit" class="filepress-btn">Upload File</button>
+            </form>
 
 
             <hr>
 
             <!-- File List -->
-            <h2><?php esc_html_e( 'Uploaded Files', 'filepress' ); ?></h2>
-            <ul>
-                <?php
-                $upload_dir = wp_upload_dir();
-                $filepress_dir = $upload_dir['basedir'] . '/filepress/';
-
-                if ( file_exists( $filepress_dir ) ) {
+            <h2>📁 Uploaded Files</h2>
+            <table class="filepress-table">
+                <thead>
+                    <tr>
+                        <th>File Name</th>
+                        <th>Preview</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
                     $files = scandir( $filepress_dir );
+                    $has_files = false;
+
                     foreach ( $files as $file ) {
                         if ( $file !== '.' && $file !== '..' ) {
-                            $file_url = $upload_dir['baseurl'] . '/filepress/' . $file;
-                            echo '<li><a href="' . esc_url( $file_url ) . '" target="_blank">' . esc_html( $file ) . '</a></li>';
+                            $has_files = true;
+                            $file_url = $filepress_url . $file;
+                            ?>
+                            <tr>
+                                <td><?php echo esc_html( $file ); ?></td>
+                                <td>
+                                    <?php if ( preg_match( '/\.(jpg|jpeg|png|gif|webp)$/i', $file ) ) : ?>
+                                        <img src="<?php echo esc_url( $file_url ); ?>" alt="" class="filepress-thumb">
+                                    <?php else : ?>
+                                        <a href="<?php echo esc_url( $file_url ); ?>" target="_blank">Open</a>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <!-- Rename Form -->
+                                    <form method="post" action="<?php echo esc_url( admin_url('admin-post.php') ); ?>" class="inline-form">
+                                        <input type="hidden" name="action" value="filepress_rename">
+                                        <input type="hidden" name="old_name" value="<?php echo esc_attr( $file ); ?>">
+                                        <?php wp_nonce_field( 'filepress_action', 'filepress_nonce' ); ?>
+                                        <input type="text" name="new_name" placeholder="Rename to..." required>
+                                        <button type="submit" class="filepress-btn small">Rename</button>
+                                    </form>
+
+                                    <!-- Delete Form -->
+                                    <form method="post" action="<?php echo esc_url( admin_url('admin-post.php') ); ?>" class="inline-form">
+                                        <input type="hidden" name="action" value="filepress_delete">
+                                        <input type="hidden" name="file_name" value="<?php echo esc_attr( $file ); ?>">
+                                        <?php wp_nonce_field( 'filepress_action', 'filepress_nonce' ); ?>
+                                        <button type="submit" class="filepress-btn danger small">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <?php
                         }
                     }
-                } else {
-                    echo '<li>' . esc_html__( 'No files uploaded yet.', 'filepress' ) . '</li>';
-                }
-                ?>
-            </ul>
+
+                    if ( ! $has_files ) {
+                        echo '<tr><td colspan="3">No files uploaded yet.</td></tr>';
+                    }
+                    ?>
+                </tbody>
+            </table>
         </div>
         <?php
     }
