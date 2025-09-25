@@ -3,7 +3,7 @@
 * Plugin Name: FilePress
 * Plugin URI: https://mahamuduldev.com/filepress
 * Description: FilePress is a simple yet modern WordPress file manager. Upload, organize, and manage files from the WordPress dashboard.
-* Version: 1.0.0
+* Version: 1.1.0
 * Author: Mahamudul Hasan
 * Author URI: https://mahamuduldev.com
 * Text Domain: filepress

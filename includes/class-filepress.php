@@ -29,6 +29,40 @@ class FilePress {
         );
     }
 
+    public function __construct() {
+    add_action( 'admin_post_filepress_upload', array( $this, 'handle_file_upload' ) );
+}
+
+    public function handle_file_upload() {
+        if ( ! isset( $_POST['filepress_nonce'] ) || ! wp_verify_nonce( $_POST['filepress_nonce'], 'filepress_upload' ) ) {
+            wp_die( 'Security check failed.' );
+        }
+
+        if ( ! current_user_can( 'upload_files' ) ) {
+            wp_die( 'You do not have permission to upload files.' );
+        }
+
+        if ( ! empty( $_FILES['filepress_file']['name'] ) ) {
+            $uploaded_file = $_FILES['filepress_file'];
+
+            $upload_dir = wp_upload_dir();
+            $filepress_dir = $upload_dir['basedir'] . '/filepress/';
+
+            if ( ! file_exists( $filepress_dir ) ) {
+                wp_mkdir_p( $filepress_dir );
+            }
+
+            $target_file = $filepress_dir . basename( $uploaded_file['name'] );
+
+            if ( move_uploaded_file( $uploaded_file['tmp_name'], $target_file ) ) {
+                wp_redirect( admin_url( 'admin.php?page=filepress&uploaded=1' ) );
+                exit;
+            } else {
+                wp_die( 'File upload failed.' );
+            }
+        }
+    }
+
     /**
      * Enqueue CSS/JS assets.
      */
@@ -60,13 +94,40 @@ class FilePress {
         ?>
         <div class="wrap">
             <h1><?php esc_html_e( 'FilePress – File Manager', 'filepress' ); ?></h1>
-            <p><?php esc_html_e( 'Welcome to FilePress! Upload, organize, and manage your files right from the WordPress dashboard.', 'filepress' ); ?></p>
-            
-            <div id="filepress-app">
-                <!-- File Manager UI will be rendered here -->
-                <p><?php esc_html_e( 'Your file manager interface will appear here.', 'filepress' ); ?></p>
-            </div>
+            <p><?php esc_html_e( 'Upload, organize, and manage your files right from the WordPress dashboard.', 'filepress' ); ?></p>
+
+            <!-- File Upload Form -->
+    <form id="filepress-upload-form" method="post" enctype="multipart/form-data" action="<?php echo esc_url( admin_url('admin-post.php') ); ?>">
+        <input type="hidden" name="action" value="filepress_upload">
+        <?php wp_nonce_field( 'filepress_upload', 'filepress_nonce' ); ?>
+        <input type="file" name="filepress_file" required>
+        <button type="submit" class="filepress-btn"><?php esc_html_e( 'Upload File', 'filepress' ); ?></button>
+    </form>
+
+
+            <hr>
+
+            <!-- File List -->
+            <h2><?php esc_html_e( 'Uploaded Files', 'filepress' ); ?></h2>
+            <ul>
+                <?php
+                $upload_dir = wp_upload_dir();
+                $filepress_dir = $upload_dir['basedir'] . '/filepress/';
+
+                if ( file_exists( $filepress_dir ) ) {
+                    $files = scandir( $filepress_dir );
+                    foreach ( $files as $file ) {
+                        if ( $file !== '.' && $file !== '..' ) {
+                            $file_url = $upload_dir['baseurl'] . '/filepress/' . $file;
+                            echo '<li><a href="' . esc_url( $file_url ) . '" target="_blank">' . esc_html( $file ) . '</a></li>';
+                        }
+                    }
+                } else {
+                    echo '<li>' . esc_html__( 'No files uploaded yet.', 'filepress' ) . '</li>';
+                }
+                ?>
+            </ul>
         </div>
         <?php
     }
-}
+    }
