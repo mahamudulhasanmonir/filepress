@@ -1,29 +1,23 @@
 ## FILEPRESS
 A powerful WordPress File Manager Plugin🔥
 
-### Detailed Description
-FilePress is a lightweight yet powerful WordPress file manager plugin designed to keep things simple, modern, and efficient. It gives you an intuitive interface to upload, browse, and manage your files directly from the WordPress admin panel — no need to use FTP or cPanel.
+### Description
 
-✨ Features:
+FilePress is a lightweight yet powerful **WordPress file manager plugin** designed to keep things simple, modern, and efficient. It gives you an intuitive interface to upload, browse, and manage your files directly from the WordPress admin panel — no need to use FTP or cPanel.
 
-📂 File Explorer UI (list & grid view)
 
-⬆️ Drag & Drop File Upload
-
-🗑️ Basic File Actions (rename, delete, download)
-
-📑 Folder Creation for better organization
-
-🔍 Quick File Search
-
-👥 User Role Permissions (control who can manage files)
-
-📱 Responsive Design (works across devices)
+### Features
+* 📂 File Explorer UI (list & grid view)
+* ⬆️ Drag & Drop File Upload
+* 🗑️ Basic File Actions (rename, delete, download)
+* 📑 Folder Creation
+* 🔍 Quick File Search
+* 👥 User Role Permissions
+* 📱 Responsive Design
 
 FilePress is built to be fast, secure, and SEO-friendly, making it a perfect fit for WordPress admins who want a reliable file manager without bloat.
 
-
-=== FilePress ===
+### ======= === === ==== ==== === = = = = = = = ==  ===
 Contributors: yourusername
 Donate link: https://yourwebsite.com/donate
 Tags: file manager, file upload, media manager, file explorer, filepress
@@ -35,22 +29,8 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 FilePress is a simple but modern WordPress file manager plugin. Upload, organize, and manage your files with ease, right inside your WordPress dashboard.
 
-== Description ==
 
-FilePress is a lightweight yet powerful **WordPress file manager plugin** designed to keep things simple, modern, and efficient. It gives you an intuitive interface to upload, browse, and manage your files directly from the WordPress admin panel — no need to use FTP or cPanel.
-
-= Features =
-* 📂 File Explorer UI (list & grid view)
-* ⬆️ Drag & Drop File Upload
-* 🗑️ Basic File Actions (rename, delete, download)
-* 📑 Folder Creation
-* 🔍 Quick File Search
-* 👥 User Role Permissions
-* 📱 Responsive Design
-
-FilePress is built to be fast, secure, and SEO-friendly, making it a perfect fit for WordPress admins who want a reliable file manager without bloat.
-
-== Installation ==
+## Installation :
 
 1. Upload the plugin files to the `/wp-content/plugins/filepress` directory, or install the plugin through the WordPress plugins screen directly.
 2. Activate the plugin through the 'Plugins' screen in WordPress.
